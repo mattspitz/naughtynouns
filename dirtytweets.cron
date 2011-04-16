@@ -1,0 +1,2 @@
+MAILTO=mattspitz@gmail.com
+*		*		*		*		*		sudo -u mspitz python /storage/random/twittercurses/dirtytweets.py 
