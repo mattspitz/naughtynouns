@@ -1,0 +1,9 @@
+NaughtyNouns (http://twitter.com/naughtynouns) is a little bot that'll
+cause mischief on Twitter.  If you @mention the bot's name with a MadLib,
+it'll fill in the madlib with some dirty things.  The words will be
+replaced by the appropriate type (noun/adj/adv) concatenated with a dirty
+word.  See the twitter feed for examples.
+
+If no one tweets at it for a day, it'll just tweet a random phrase or word.
+
+Happy cursing!
