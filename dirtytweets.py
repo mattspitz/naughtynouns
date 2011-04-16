@@ -196,8 +196,8 @@ def should_post():
     return False
 
 def get_api():
-    access_token = oauth.OAuthToken.from_string(access_token_str)
-    return oauthtwitter.OAuthApi(config["consumer_key"], config["consumer_secret"], config["access_token"])
+    access_token = oauth.OAuthToken.from_string(config["access_token_str"])
+    return oauthtwitter.OAuthApi(config["consumer_key"], config["consumer_secret"], access_token)
 
 def get_default_template():
     return random.choice([
