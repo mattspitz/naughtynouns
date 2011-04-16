@@ -1,0 +1,7 @@
+{
+ "consumer_key": "YOUR_CONSUMER_KEY",
+ "consumer_secret": "YOUR_CONSUMER_SECRET",
+ "access_token_str": "YOUR_ACCESS_TOKEN_STRING",
+ "words_dir": "WORDS_DIRECTORY",
+ "status_fn": "STATUS_FILENAME"
+}
