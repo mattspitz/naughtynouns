@@ -212,6 +212,7 @@ def get_default_template():
             'Ask not what <n> can <v> for you.  Ask what you can <v> for your <n>',
             'To <v> or not to be, that is the <n>.',
             '<v> me and then just <v>, so I can get my <n>.',
+            'Hey Mr. Tambourine <n>, <v> that <n> for me.',
             'I went <n>ing, and all I got was this <adj> <n>.'
             ])
 
