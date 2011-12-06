@@ -18,7 +18,7 @@ RANDOM_BACKOFF = 24*60*60 # 24 hours
 config_fn = os.environ.get("CONFIGFN", "config.json")
 config = simplejson.load(open(config_fn, 'r'))
 
-dict_dir = config["words_dir"]
+words_dir = config["words_dir"]
 status_fn = config["status_fn"]
 
 status_dict = {}
@@ -47,23 +47,31 @@ def load_words(filename):
     f.close()
     return words
 
-wordlist_fns = {'noun': os.path.join(dict_dir, 'noun.mss'),
-                'n': os.path.join(dict_dir, 'noun.mss'),
-                'verb': os.path.join(dict_dir, 'verb.mss'),
-                'v': os.path.join(dict_dir, 'verb.mss'),
-                'adv': os.path.join(dict_dir, 'adv.mss'),
-                'adj': os.path.join(dict_dir, 'adj.mss')}
+word_families = {"shakespeare": "shakespeare",
+                 # "wndb": "wndb_filtered",
+                 "frankenstein": "frankenstein",
+                 "hackers": "hackers"}
+
+wordlist_fns = {'noun': 'noun',
+                'n': 'noun',
+                'verb': 'verb',
+                'v': 'verb',
+                'adv': 'adv',
+                'adj': 'adj'}
 wordlist_cache = {}
-def get_wordlist(key):
-    if key in wordlist_cache:
-        return wordlist_cache[key]
+def get_wordlist(word_family, key):
+    cache_key = "%s|%s" % (word_family, key)
+
+    if cache_key in wordlist_cache:
+        return wordlist_cache[cache_key]
 
     if key == 'naughty':
-        words = load_words(os.path.join(dict_dir, 'naughty.mss'))
+        words = load_words(os.path.join(words_dir, 'mss/naughty'))
     else:
-        words = load_words(wordlist_fns[key])
+        fn = os.path.join(words_dir, word_families[word_family], wordlist_fns[key])
+        words = load_words(fn)
 
-    wordlist_cache[key] = words
+    wordlist_cache[cache_key] = words
     return words
 
 def generate_word(naughty_lst, nice_lst):
@@ -139,13 +147,16 @@ def fetch_templates(api):
     status['last_reply_id'] = last_id
 
 def fill_template(templatetpl):
-    user, template, status_id = templatetpl
+    word_family, user, template, status_id = templatetpl
     result = template
+    if word_family is None:
+        word_family = random.choice(word_families.keys())
+
     for word_type in wordlist_fns:
         for template_key in get_template_keys(word_type):
             while template_key in result:
-                word = generate_word(get_wordlist('naughty'),
-                                     get_wordlist(word_type))
+                word = generate_word(get_wordlist(None, 'naughty'),
+                                     get_wordlist(word_family, word_type))
 
                 result = result.replace(template_key, word, 1)
 
@@ -169,7 +180,7 @@ def choose_template():
 def post_status(api, templatetpl):
     status = fill_template(templatetpl)
 
-    user, template, status_id = templatetpl
+    word_family, user, template, status_id = templatetpl
 
     max_len = 140*3
     if len(status) > max_len:
@@ -220,6 +231,10 @@ def main():
     if os.environ.get("DEBUG", 0):
         logging.basicConfig(level=logging.DEBUG)
 
+    if os.environ.get("TESTLINE", 0):
+        print fill_template( (os.environ.get("WORD_FAMILY", None), None, get_default_template(), None) )
+        return
+
     api = get_api()
     fetch_templates(api)
 
@@ -234,12 +249,12 @@ def main():
             post_status(api, templatetpl)
         else:
             # post a random dirtyword
-            templatetpl = (None, get_default_template(), None)
+            templatetpl = (None, None, get_default_template(), None)
             post_status(api, templatetpl)
 
         status['last_post_time'] = time.time()
     except:
-        user, template, status_id = templatetpl
+        word_family, user, template, status_id = templatetpl
         logging.exception("Error when posting template '%s' for user '%s'" % (template, user))
         if user:
             add_template(user, template, status_id)
