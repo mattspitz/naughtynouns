@@ -69,7 +69,7 @@ def get_wordlist(key):
 def generate_word(naughty_lst, nice_lst):
     naughty_w = random.choice(naughty_lst).lower()
     nice_w = random.choice(nice_lst).lower()
-    
+
     # NaughtyNice
     naughty_w = naughty_w[0].upper() + naughty_w[1:]
     nice_w = nice_w[0].upper() + nice_w[1:]
@@ -101,7 +101,7 @@ def get_template(message):
             if template_key in template:
                 # we have at least one thing to fill in
                 return template
-            
+
     return None
 
 def add_template(user, template, status_id):
@@ -146,15 +146,15 @@ def fill_template(templatetpl):
             while template_key in result:
                 word = generate_word(get_wordlist('naughty'),
                                      get_wordlist(word_type))
-            
+
                 result = result.replace(template_key, word, 1)
-            
+
     if user:
         result = "@%s %s" % (user, result)
 
     logging.debug("Filled template '%s' as '%s'" % (template, result))
     return result
-    
+
 def choose_template():
     status = get_statusdict()
     if 'pending' in status and status['pending']:
@@ -212,12 +212,13 @@ def get_default_template():
             'Ask not what <n> can <v> for you.  Ask what you can <v> for your <n>',
             'To <v> or not to be, that is the <n>.',
             '<v> me and then just <v>, so I can get my <n>.',
+            'Hey Mr. Tambourine <n>, <v> that <n> for me.',
             'I went <n>ing, and all I got was this <adj> <n>.'
             ])
 
 def main():
     if os.environ.get("DEBUG", 0):
-        logging.basicConfig(level=logging.DEBUG)        
+        logging.basicConfig(level=logging.DEBUG)
 
     api = get_api()
     fetch_templates(api)
@@ -242,7 +243,7 @@ def main():
         logging.exception("Error when posting template '%s' for user '%s'" % (template, user))
         if user:
             add_template(user, template, status_id)
-        
+
     save_statusdict()
 
 if __name__ == "__main__":

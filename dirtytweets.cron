@@ -1,0 +1,2 @@
+MAILTO=mattspitz@gmail.com
+*		*		*		*		*		sudo -u mspitz CONFIGFN=/storage/random/twittercurses/config.json python /storage/random/twittercurses/dirtytweets.py 
