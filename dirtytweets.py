@@ -174,7 +174,14 @@ def choose_template():
         if len(status['pending'][user]) == 0:
             del status['pending'][user]
 
-        return user, template, status_id
+        word_family = None
+        for wf in word_families:
+            hashtag = "#%s" % wf
+            if hashtag in template:
+                word_family = wf
+                template = template.replace(hashtag, "")
+
+        return word_family, user, template.strip(), status_id
     return None
 
 def post_status(api, templatetpl):
