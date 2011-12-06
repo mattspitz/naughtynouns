@@ -1,7 +1,0 @@
-{
- "consumer_key": "4NkTsdMZAR6zXsg0pRERw",
- "consumer_secret": "D8zQFBG0ziCZXfYqJ4qhB1MRv6kWLYf38Kqdjjv57Bc",
- "access_token_str": "oauth_token_secret=3fvEMX0bsVIfKpPuRwDYGM7rEvHV7C5zNY4pJcHrA&oauth_token=174913087-qEGj4R6QsuyikkuJHTHCyJwBnnGgtEMKEoDABbpL",
- "words_dir": "words",
- "status_fn": "/storage/random/twittercurses/status.json"
-}
