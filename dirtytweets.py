@@ -181,6 +181,8 @@ def choose_template():
                 word_family = wf
                 template = template.replace(hashtag, "")
 
+        logging.debug("Chose word family: %s" % word_family)
+
         return word_family, user, template.strip(), status_id
     return None
 
