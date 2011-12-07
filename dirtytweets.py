@@ -12,7 +12,7 @@ import oauth.oauth as oauth
 # http://code.google.com/p/oauth-python-twitter2/
 import oauthtwitter
 
-REPLY_BACKOFF = 2*60 # 2 minutes
+REPLY_BACKOFF = 60 # 1 minute
 RANDOM_BACKOFF = 24*60*60 # 24 hours
 
 config_fn = os.environ.get("CONFIGFN", "config.json")
