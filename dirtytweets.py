@@ -12,7 +12,7 @@ import oauth.oauth as oauth
 # http://code.google.com/p/oauth-python-twitter2/
 import oauthtwitter
 
-REPLY_BACKOFF = 4*60 # 4 minutes
+REPLY_BACKOFF = 2*60 # 2 minutes
 RANDOM_BACKOFF = 24*60*60 # 24 hours
 
 config_fn = os.environ.get("CONFIGFN", "config.json")
@@ -206,7 +206,7 @@ def should_post():
     wait_time = time.time()-last_post
 
     if can_post_template and wait_time > REPLY_BACKOFF:
-            return True
+        return True
 
     if wait_time > RANDOM_BACKOFF:
         return True
