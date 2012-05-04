@@ -9,7 +9,8 @@ import urllib2
 
 import simplejson
 import oauth.oauth as oauth
-# http://code.google.com/p/oauth-python-twitter2/
+# http://code.google.com/p/oauth-python-twitter/
+# requires http://code.google.com/p/python-twitter/ version 0.6!
 import oauthtwitter
 
 REPLY_BACKOFF = 60 # 1 minute
