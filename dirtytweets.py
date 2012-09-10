@@ -7,7 +7,7 @@ import sys
 import time
 import urllib2
 
-import simplejson
+import json
 import oauth.oauth as oauth
 # http://code.google.com/p/oauth-python-twitter/
 # requires http://code.google.com/p/python-twitter/ version 0.6!
@@ -17,7 +17,7 @@ REPLY_BACKOFF = 60 # 1 minute
 RANDOM_BACKOFF = 24*60*60 # 24 hours
 
 config_fn = os.environ.get("CONFIGFN", "config.json")
-config = simplejson.load(open(config_fn, 'r'))
+config = json.load(open(config_fn, 'r'))
 
 words_dir = config["words_dir"]
 status_fn = config["status_fn"]
@@ -30,7 +30,7 @@ def get_statusdict():
         return status_dict
 
     try:
-        status_dict = simplejson.loads(open(status_fn,'r').read())
+        status_dict = json.load(open(status_fn,'r'))
     except:
         logging.exception("Couldn't load status dict")
         status_dict = {'last_post_time': 0}
@@ -38,7 +38,7 @@ def get_statusdict():
 
 def save_statusdict():
     try:
-        open(status_fn, 'w').write(simplejson.dumps(status_dict))
+        json.dump(status_dict, open(status_fn, 'w'))
     except:
         logging.exception("Couldn't save status dict")
 
