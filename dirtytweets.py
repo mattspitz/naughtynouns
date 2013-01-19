@@ -133,7 +133,7 @@ def fetch_templates(api):
             logging.debug("template '%s' contains no special words; ignoring...", template)
             continue
 
-        screen_name = reply.user.screen_name
+        screen_name = reply["user"]["screen_name"]
         add_template(screen_name, template, reply["id"])
         logging.debug("adding template '%s' for user %s", template, screen_name)
 
