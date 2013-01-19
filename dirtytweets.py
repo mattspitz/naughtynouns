@@ -1,4 +1,5 @@
 import httplib
+import json
 import logging
 import os
 import random
@@ -7,11 +8,7 @@ import sys
 import time
 import urllib2
 
-import json
-import oauth.oauth as oauth
-# http://code.google.com/p/oauth-python-twitter/
-# requires http://code.google.com/p/python-twitter/ version 0.6!
-import oauthtwitter
+import twitter
 
 REPLY_BACKOFF = 60 # 1 minute
 RANDOM_BACKOFF = 24*60*60 # 24 hours
@@ -128,22 +125,22 @@ def fetch_templates(api):
 
     old_last_id = status.get('last_reply_id', 0)
     last_id = old_last_id
-    for reply in api.GetReplies():
-        if reply.id <= old_last_id:
-            logging.debug("message id %s <= last_id %s" % (reply.id, last_id))
+    for reply in api.statuses.mentions():
+        if reply["id"] <= old_last_id:
+            logging.debug("message id %s <= last_id %s" % (reply["id"], last_id))
             continue
 
-        template = get_template(reply.text)
+        template = get_template(reply["text"])
         if template is None:
             logging.debug("template '%s' contains no special words; ignoring..." % template)
             continue
 
         screen_name = reply.user.screen_name
-        add_template(screen_name, template, reply.id)
+        add_template(screen_name, template, reply["id"])
         logging.debug("adding template '%s' for user %s" % (template, screen_name))
 
-        if reply.id > last_id:
-            last_id = reply.id
+        if reply["id"] > last_id:
+            last_id = reply["id"]
 
     status['last_reply_id'] = last_id
 
@@ -196,7 +193,7 @@ def post_status(api, templatetpl):
     if len(status) > max_len:
         logging.debug("Dropping message longer than %d" % max_len)
     else:
-        api.PostUpdates(status, in_reply_to_status_id=status_id)
+        api.statuses.update(status=status, in_reply_to_status_id=status_id)
         logging.debug("Posted '%s' in reply to %s" % (status, status_id))
 
 def should_post():
@@ -217,8 +214,14 @@ def should_post():
     return False
 
 def get_api():
-    access_token = oauth.OAuthToken.from_string(config["access_token_str"])
-    return oauthtwitter.OAuthApi(config["consumer_key"], config["consumer_secret"], access_token)
+    return twitter.Twitter(
+            auth=twitter.OAuth(
+                config["oauth_token"],
+                config["oauth_secret"],
+                config["consumer_key"],
+                config["consumer_secret"]
+                )
+            )
 
 def get_default_template():
     return random.choice([
