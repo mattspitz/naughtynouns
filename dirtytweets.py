@@ -4,7 +4,6 @@ import logging
 import os
 import random
 import re
-import sys
 import time
 import urllib2
 
@@ -28,7 +27,7 @@ def get_statusdict():
 
     try:
         status_dict = json.load(open(status_fn,'r'))
-    except:
+    except Exception:
         logging.exception("Couldn't load status dict")
         status_dict = {'last_post_time': 0}
     return status_dict
@@ -36,7 +35,7 @@ def get_statusdict():
 def save_statusdict():
     try:
         json.dump(status_dict, open(status_fn, 'w'))
-    except:
+    except Exception:
         logging.exception("Couldn't save status dict")
 
 def load_words(filename):
@@ -88,19 +87,19 @@ def get_template_keys(key):
              '<%s>' % key ]
 
 def get_template(message):
-    logging.debug("Getting template for '%s'" % message)
+    logging.debug("Getting template for '%s'", message)
 
     template = message.replace('&lt;', '<').replace('&gt;', '>')
-    logging.debug("After un-HTML encoding: '%s'" % template)
+    logging.debug("After un-HTML encoding: '%s'", template)
 
     template = re.sub(r'^(\s*@\w+)*', '', template)
-    logging.debug("After stripping leading replies: '%s'" % template)
+    logging.debug("After stripping leading replies: '%s'", template)
 
     template = re.sub(r'(?<=\s)@(?=\w+)', '', template)
-    logging.debug("After stripping mentions: '%s'" % template)
+    logging.debug("After stripping mentions: '%s'", template)
 
     template = template.lstrip().rstrip()
-    logging.debug("After trimming: '%s'" % template)
+    logging.debug("After trimming: '%s'",  template)
 
     for key in wordlist_fns:
         for template_key in get_template_keys(key):
@@ -120,24 +119,23 @@ def add_template(user, template, status_id):
     status['pending'][user].insert(0, (template, status_id))
 
 def fetch_templates(api):
-    templates = []
     status = get_statusdict()
 
     old_last_id = status.get('last_reply_id', 0)
     last_id = old_last_id
     for reply in api.statuses.mentions():
         if reply["id"] <= old_last_id:
-            logging.debug("message id %s <= last_id %s" % (reply["id"], last_id))
+            logging.debug("message id %s <= last_id %s", reply["id"], last_id)
             continue
 
         template = get_template(reply["text"])
         if template is None:
-            logging.debug("template '%s' contains no special words; ignoring..." % template)
+            logging.debug("template '%s' contains no special words; ignoring...", template)
             continue
 
         screen_name = reply.user.screen_name
         add_template(screen_name, template, reply["id"])
-        logging.debug("adding template '%s' for user %s" % (template, screen_name))
+        logging.debug("adding template '%s' for user %s", template, screen_name)
 
         if reply["id"] > last_id:
             last_id = reply["id"]
@@ -145,7 +143,7 @@ def fetch_templates(api):
     status['last_reply_id'] = last_id
 
 def fill_template(templatetpl):
-    word_family, user, template, status_id = templatetpl
+    word_family, user, template, _ = templatetpl
     result = template
     if word_family is None:
         word_family = random.choice(word_families.keys())
@@ -161,7 +159,7 @@ def fill_template(templatetpl):
     if user:
         result = "@%s %s" % (user, result)
 
-    logging.debug("Filled template '%s' as '%s'" % (template, result))
+    logging.debug("Filled template '%s' as '%s'", template, result)
     return result
 
 def choose_template():
@@ -179,7 +177,7 @@ def choose_template():
                 word_family = wf
                 template = template.replace(hashtag, "")
 
-        logging.debug("Chose word family: %s" % word_family)
+        logging.debug("Chose word family: %s", word_family)
 
         return word_family, user, template.strip(), status_id
     return None
@@ -187,14 +185,14 @@ def choose_template():
 def post_status(api, templatetpl):
     status = fill_template(templatetpl)
 
-    word_family, user, template, status_id = templatetpl
+    _, _, _, status_id = templatetpl
 
     max_len = 140*3
     if len(status) > max_len:
-        logging.debug("Dropping message longer than %d" % max_len)
+        logging.debug("Dropping message longer than %d", max_len)
     else:
         api.statuses.update(status=status, in_reply_to_status_id=status_id)
-        logging.debug("Posted '%s' in reply to %s" % (status, status_id))
+        logging.debug("Posted '%s' in reply to %s", status, status_id)
 
 def should_post():
     status = get_statusdict()
@@ -209,7 +207,7 @@ def should_post():
     if wait_time > RANDOM_BACKOFF:
         return True
 
-    logging.debug("Last post was %0.2f seconds ago.  Can we post a template? %s.  Not going to post." % (wait_time, can_post_template))
+    logging.debug("Last post was %0.2f seconds ago.  Can we post a template? %s.  Not going to post.", wait_time, can_post_template)
 
     return False
 
@@ -266,9 +264,9 @@ def main():
             post_status(api, templatetpl)
 
         status['last_post_time'] = time.time()
-    except:
-        word_family, user, template, status_id = templatetpl
-        logging.exception("Error when posting template '%s' for user '%s'" % (template, user))
+    except Exception:
+        _, user, template, status_id = templatetpl
+        logging.exception("Error when posting template '%s' for user '%s'", template, user)
         if user:
             add_template(user, template, status_id)
 
