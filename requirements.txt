@@ -3,5 +3,5 @@ distribute==0.6.24
 logilab-astng==0.24.0
 logilab-common==0.58.1
 pylint==0.25.2
-twitter==1.9.0
+twitter==1.9.4
 wsgiref==0.1.2

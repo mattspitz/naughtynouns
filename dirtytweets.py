@@ -7,6 +7,7 @@ import re
 import time
 import urllib2
 
+# twitter on PyPI
 import twitter
 
 REPLY_BACKOFF = 60 # 1 minute
@@ -123,7 +124,7 @@ def fetch_templates(api):
 
     old_last_id = status.get('last_reply_id', 0)
     last_id = old_last_id
-    for reply in api.statuses.mentions():
+    for reply in api.statuses.mentions_timeline():
         if reply["id"] <= old_last_id:
             logging.debug("message id %s <= last_id %s", reply["id"], last_id)
             continue
